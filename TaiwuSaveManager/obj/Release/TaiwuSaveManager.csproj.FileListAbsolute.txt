@@ -1,0 +1,14 @@
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\bin\Release\TaiwuSaveManager.exe.config
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\bin\Release\TaiwuSaveManager.exe
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\bin\Release\TaiwuSaveManager.pdb
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\obj\Release\MainWindow.g.cs
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\obj\Release\App.g.cs
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\obj\Release\TaiwuSaveManager_MarkupCompile.cache
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\obj\Release\TaiwuSaveManager_MarkupCompile.lref
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\obj\Release\MainWindow.baml
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\obj\Release\TaiwuSaveManager.g.resources
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\obj\Release\TaiwuSaveManager.Properties.Resources.resources
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\obj\Release\TaiwuSaveManager.csproj.GenerateResource.cache
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\obj\Release\TaiwuSaveManager.csproj.CoreCompileInputs.cache
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\obj\Release\TaiwuSaveManager.exe
+X:\zerg\TaiwuSaveManager\TaiwuSaveManager\obj\Release\TaiwuSaveManager.pdb

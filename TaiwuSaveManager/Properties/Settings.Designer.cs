@@ -25,12 +25,12 @@ namespace TaiwuSaveManager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public string SavefilePath {
+        public string GameDir {
             get {
-                return ((string)(this["SavefilePath"]));
+                return ((string)(this["GameDir"]));
             }
             set {
-                this["SavefilePath"] = value;
+                this["GameDir"] = value;
             }
         }
         

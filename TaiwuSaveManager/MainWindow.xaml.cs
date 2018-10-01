@@ -28,24 +28,25 @@ namespace TaiwuSaveManager {
             });
             // load datagrid for backups
             RefreshBackupList();
-            setStatusText("Ready");
+            SetStatusText(Properties.Resources.Ready);
         }
 
-        private void setStatusText(string status, int state = 0) {
-            labelStatus.Content = status;
+        private void SetStatusText(string status, int state = 0) {
             SolidColorBrush brush = new SolidColorBrush(Color.FromRgb(0, 0, 0));
             if (state == 1) {
                 brush.Color = Color.FromRgb(255, 0, 0);
+                status = $"{Properties.Resources.Error}: {status}";
             } else if (state == 2) {
-                brush.Color = Color.FromRgb(0, 255, 0);
+                brush.Color = Color.FromRgb(0, 0, 255);
+                status = $"{Properties.Resources.Success}: {status}";
             }
-            labelStatus.Foreground = brush;
+            tbStatus.Text = status;
+            tbStatus.Foreground = brush;
         }
 
-        private void onSavefilePathChanged(object sender, TextChangedEventArgs e) {
-            TextBox textbox = sender as TextBox;
-            if (textbox != null) {
-                Properties.Settings.Default.SavefilePath = textbox.Text;
+        private void OnSavefilePathChanged(object sender, TextChangedEventArgs e) {
+            if (sender is TextBox textbox) {
+                Properties.Settings.Default.GameDir = textbox.Text;
                 Properties.Settings.Default.Save();
             }
         }
@@ -56,9 +57,15 @@ namespace TaiwuSaveManager {
             Properties.Settings.Default.Save();
         }
 
+        private string SavefilesPath {
+            get {
+                return Properties.Settings.Default.GameDir + $@"\The Scroll Of Taiwu Alpha V1.0_Data\SaveFiles";
+            }
+        }
+
         private string SavefilePath {
             get {
-                return Properties.Settings.Default.SavefilePath + $@"\Date_{Properties.Settings.Default.SaveID}";
+                return SavefilesPath + $@"\Date_{Properties.Settings.Default.SaveID}";
             }
         }
 
@@ -69,74 +76,87 @@ namespace TaiwuSaveManager {
         }
 
         private void RefreshBackupList() {
-            listBackups.Items.Clear();
             if (!Directory.Exists(BackupPath)) {
                 return;
             }
             DirectoryInfo dir = new DirectoryInfo(BackupPath);
             FileInfo[] files = dir.GetFiles("backup-?-????-??-??-??-??.zip");
+            listBackups.Items.Clear();
+            int index = 0;
             foreach (FileInfo file in files) {
-                ListViewItem item = new ListViewItem();
-                item.Content = file.Name;
-                item.Tag = file;
-                listBackups.Items.Add(item);
+                ++index;
+                listBackups.Items.Add(new ListViewItem {
+                    Content = $"{Properties.Resources.Seperator}{index.ToString("D3")} {Properties.Resources.SaveSlot}{file.Name[7]} {file.Name.Substring(9, 10)} {file.Name.Substring(20, 5).Replace('-', ':')}",
+                    Tag = file
+                });
             }
         }
 
-        private bool filelock = false;
+        private void DisableButtons() {
+            foreach (Button btn in gridButtons.Children) {
+                btn.IsEnabled = false;
+            }
+        }
+
+        private void EnableButtons() {
+            foreach (Button btn in gridButtons.Children) {
+                btn.IsEnabled = true;
+            }
+        }
 
         private async void Backup(object sender, RoutedEventArgs e) {
-            if (filelock) {
-                return;
-            }
-            filelock = true;
-            setStatusText("...");
-            if (Directory.Exists(SavefilePath)) {
-                string backupFile = BackupPath + $@"\backup-{Properties.Settings.Default.SaveID}-{DateTime.Now.ToString("yyyy-MM-dd-HH-mm")}.zip";
-                Directory.CreateDirectory(BackupPath);
-                if (File.Exists(backupFile)) {
-                    File.Delete(backupFile);
-                    await Task.Run(() => {
-                        ZipFile.CreateFromDirectory(SavefilePath, backupFile);
-                    });
-                    setStatusText("Overwrite");
+            DisableButtons();
+            SetStatusText(Properties.Resources.Processing);
+            if (Directory.Exists(SavefilesPath)) {
+                if (Directory.Exists(SavefilePath) && Directory.EnumerateFileSystemEntries(SavefilePath).Any()) {
+                    string backupFile = BackupPath + $@"\backup-{Properties.Settings.Default.SaveID}-{DateTime.Now.ToString("yyyy-MM-dd-HH-mm")}.zip";
+                    Directory.CreateDirectory(BackupPath);
+                    if (File.Exists(backupFile)) {
+                        File.Delete(backupFile);
+                        await Task.Run(() => {
+                            ZipFile.CreateFromDirectory(SavefilePath, backupFile);
+                        });
+                        SetStatusText(Properties.Resources.OverwirteBackups);
+                    } else {
+                        await Task.Run(() => {
+                            ZipFile.CreateFromDirectory(SavefilePath, backupFile);
+                        });
+                        SetStatusText(Properties.Resources.Finished, 2);
+                    }
                 } else {
-                    await Task.Run(() => {
-                        ZipFile.CreateFromDirectory(SavefilePath, backupFile);
-                    });
-                    setStatusText("OK", 2);
+                    SetStatusText(Properties.Resources.NoSavefile, 1);
                 }
             } else {
-                setStatusText("X Save", 1);
+                SetStatusText(Properties.Resources.InvalidGameDir, 1);
             }
-            filelock = false;
             RefreshBackupList();
+            EnableButtons();
         }
 
         private async void Restore(object sender, RoutedEventArgs e) {
-            if (filelock) {
-                return;
-            }
-            filelock = true;
-            setStatusText("...");
-            if (Directory.Exists(Properties.Settings.Default.SavefilePath)) {
-                string backupFile = ((listBackups.SelectedItem as ListViewItem).Tag as FileInfo).FullName;
-                if (File.Exists(backupFile)) {
+            DisableButtons();
+            SetStatusText(Properties.Resources.Processing);
+            if (Directory.Exists(SavefilesPath)) {
+                string backupFile = "";
+                if (listBackups.SelectedItems.Count != 0) {
+                    backupFile = ((listBackups.SelectedItem as ListViewItem).Tag as FileInfo).FullName;
+                }
+                if (listBackups.SelectedItems.Count != 0 && File.Exists(backupFile)) {
                     if (Directory.Exists(SavefilePath)) {
                         Directory.Delete(SavefilePath, true);
                     }
                     await Task.Run(() => {
                         ZipFile.ExtractToDirectory(backupFile, SavefilePath);
                     });
-                    setStatusText("OK", 2);
+                    SetStatusText(Properties.Resources.Finished, 2);
                 } else {
-                    setStatusText("X File", 1);
+                    SetStatusText(Properties.Resources.InvalidBackup, 1);
                 }
             } else {
-                setStatusText("X Path", 1);
+                SetStatusText(Properties.Resources.InvalidGameDir, 1);
             }
-            filelock = false;
             RefreshBackupList();
+            EnableButtons();
         }
     }
 }
